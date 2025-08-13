@@ -1,5 +1,5 @@
 # Long Document Summarizer & Q&A Tool - Backend (Django)
-
+sample
 ## Prerequisites
 - Python 3.10+
 - Ollama installed and running (for local LLaMA). See [Ollama](https://ollama.com).
