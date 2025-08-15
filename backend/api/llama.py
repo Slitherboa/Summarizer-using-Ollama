@@ -2,7 +2,7 @@ import os
 from typing import List
 import ollama
 
-MODEL_NAME = os.getenv('LLAMA_MODEL', 'llama3.1')
+MODEL_NAME = os.getenv('LLAMA_MODEL', 'smolLM2')
 MAX_CHARS_PER_CHUNK = int(os.getenv('LLM_MAX_CHARS', '4000'))
 MAX_CHUNKS = int(os.getenv('LLM_MAX_CHUNKS', '4'))
 NUM_PREDICT = int(os.getenv('LLM_NUM_PREDICT', '300'))
