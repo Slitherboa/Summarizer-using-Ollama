@@ -44,5 +44,5 @@ npm run dev
 - Ask follow-up questions in the Q&A box. The backend uses session to reference the last uploaded text.
 
 ## Environment
-- Backend can use `LLAMA_MODEL` to select which model Ollama serves (default `llama3.1`).
+- Backend can use `LLAMA_MODEL` to select which model Ollama serves (default `smolLM2`).
 - Frontend can override API base via `VITE_API_BASE`.
