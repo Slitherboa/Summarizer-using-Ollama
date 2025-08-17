@@ -9,7 +9,9 @@ A mini project using Django (REST) + React (Vite) with a local LLaMA model (via 
 ## Prerequisites
 - Python 3.10+
 - Node.js 18+
-- Ollama installed and running (see [Ollama](https://ollama.com))
+- One of:
+  - OpenAI API key (for GPT-4o mini)
+  - Ollama installed and running (for local models) (see [Ollama](https://ollama.com))
 
 ## Setup
 ### Backend
@@ -20,7 +22,15 @@ python -m venv .venv
 . .venv/Scripts/activate  # Windows PowerShell: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
-2. Pull a model and ensure Ollama is running
+2. Choose your LLM provider
+
+OpenAI (recommended for GPT-4o mini):
+```bash
+setx LLM_PROVIDER openai
+setx OPENAI_API_KEY your_key_here
+```
+
+Ollama (local):
 ```bash
 ollama pull llama3.1
 ```
@@ -42,6 +52,31 @@ npm run dev
 ## Usage
 - Upload a PDF or paste text. Click "Summarize".
 - Ask follow-up questions in the Q&A box. The backend uses session to reference the last uploaded text.
+
+### Restricting Q&A to the Uploaded Document (Relevance Gate)
+- The backend blocks off-topic questions using embeddings.
+- On upload, the document summary is stored in session and embedded. On ask, the question is embedded and compared to the summary via cosine similarity. If similarity is below a threshold, the server responds with a gentle refusal.
+
+Setup:
+- OpenAI provider: set env vars and use defaults
+  - `OPENAI_MODEL` (default `gpt-4o-mini`)
+  - `OPENAI_EMBED_MODEL` (default `text-embedding-3-small`)
+- Ollama provider: pull an embedding model (default `nomic-embed-text`):
+  ```bash
+  ollama pull nomic-embed-text
+  ```
+
+Environment variables:
+- Common:
+  - `LLM_PROVIDER` = `openai` | `ollama` (default `ollama`)
+  - `RELEVANCE_THRESHOLD` (default `0.30`, increase to be stricter)
+- OpenAI:
+  - `OPENAI_API_KEY` (required for `openai`)
+  - `OPENAI_MODEL` (default `gpt-4o-mini`)
+  - `OPENAI_EMBED_MODEL` (default `text-embedding-3-small`)
+- Ollama:
+  - `LLAMA_MODEL` (default `smolLM2`)
+  - `EMBED_MODEL` (default `nomic-embed-text`)
 
 ## Environment
 - Backend can use `LLAMA_MODEL` to select which model Ollama serves (default `llama3.1`).

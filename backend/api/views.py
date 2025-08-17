@@ -9,7 +9,7 @@ from rest_framework import status
 
 from .serializers import UploadSerializer, AskSerializer
 from .pdf_utils import extract_text_from_pdf
-from .llama import summarize_text, answer_question
+from .llama import summarize_text, answer_question, is_question_relevant
 
 
 @csrf_exempt
@@ -40,6 +40,9 @@ def upload_view(request):
     except Exception as e:
         return Response({'error': f'LLM error: {e}'}, status=status.HTTP_502_BAD_GATEWAY)
 
+    # Store the summary too (used for relevance gating)
+    request.session['last_document_summary'] = summary
+
     return Response({'summary': summary})
 
 
@@ -56,6 +59,20 @@ def ask_view(request):
         return Response({'error': 'No document in session. Upload text or PDF first.'}, status=status.HTTP_400_BAD_REQUEST)
 
     question = serializer.validated_data['question']
+    summary_text = request.session.get('last_document_summary') or ''
+
+    # Relevance gate using embeddings on summary vs question
+    try:
+        if summary_text:
+            is_relevant, sim = is_question_relevant(summary_text, question)
+            if not is_relevant:
+                return Response({
+                    'answer': "Your question doesn't seem related to the uploaded document. Please ask about the document's content.",
+                    'similarity': round(sim, 3),
+                })
+    except Exception:
+        # Soft-fail the gate if embeddings are unavailable; continue to answer grounded by context
+        pass
     try:
         answer = answer_question(context_text, question)
     except Exception as e:
